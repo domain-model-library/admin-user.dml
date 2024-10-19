@@ -33,7 +33,7 @@ public class AdminUserService {
                                     String account, String password, AdminUserSession newAdminUserSession,
                                     long currentTime) {
         AdminUserRepository<AdminUser> adminUserRepository = repositorySet.getAdminUserRepository();
-        AdminUserCurrentSessionRepository<AdminUserCurrentSession> adminUserCurrentSessionRepository = repositorySet.getAdminUserCurrentSessionRepository();
+        AdminUserCurrentSessionRepository adminUserCurrentSessionRepository = repositorySet.getAdminUserCurrentSessionRepository();
 
         LoginResult loginResult = new LoginResult();
         AdminUser adminUser = adminUserRepository.find(account);
@@ -161,7 +161,7 @@ public class AdminUserService {
 
     public static AdminUserSession logout(AdminUserServiceRepositorySet repositorySet,
                                           String sessionId) {
-        AdminUserCurrentSessionRepository<AdminUserCurrentSession> adminUserCurrentSessionRepository = repositorySet.getAdminUserCurrentSessionRepository();
+        AdminUserCurrentSessionRepository adminUserCurrentSessionRepository = repositorySet.getAdminUserCurrentSessionRepository();
         AdminUserSessionRepository<AdminUserSession> adminUserSessionRepository = repositorySet.getAdminUserSessionRepository();
 
         AdminUserSession removedSession = removeSessionAndAliveKeeper(repositorySet, sessionId);
