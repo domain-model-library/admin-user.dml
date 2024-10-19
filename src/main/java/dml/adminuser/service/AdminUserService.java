@@ -12,14 +12,21 @@ import dml.keepalive.service.repositoryset.AliveKeeperServiceRepositorySet;
 
 public class AdminUserService {
 
-    public static AdminUser addAdminUser(AdminUserServiceRepositorySet repositorySet,
-                                         String account, String password, AdminUser newAdminUser) {
+    public static AddAdminUserResult addAdminUser(AdminUserServiceRepositorySet repositorySet,
+                                                  String account, String password, AdminUser newAdminUser) {
         AdminUserRepository<AdminUser> adminUserRepository = repositorySet.getAdminUserRepository();
 
+        AddAdminUserResult addAdminUserResult = new AddAdminUserResult();
         newAdminUser.setAccount(account);
         newAdminUser.setPassword(password);
-        adminUserRepository.put(newAdminUser);
-        return newAdminUser;
+        AdminUser existAdminUser = adminUserRepository.putIfAbsent(newAdminUser);
+        if (existAdminUser != null) {
+            addAdminUserResult.setExistAdminUser(existAdminUser);
+            return addAdminUserResult;
+        }
+        addAdminUserResult.setSuccess(true);
+        addAdminUserResult.setNewAdminUser(newAdminUser);
+        return addAdminUserResult;
     }
 
     public static LoginResult login(AdminUserServiceRepositorySet repositorySet,
