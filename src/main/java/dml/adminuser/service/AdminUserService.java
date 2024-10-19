@@ -130,4 +130,39 @@ public class AdminUserService {
         }
         return adminUserSession.getAccount();
     }
+
+    public static void keepSessionAlive(AdminUserServiceRepositorySet repositorySet,
+                                        String sessionId, long currentTime) {
+        KeepAliveService.keepAlive(getAliveKeeperServiceRepositorySet(repositorySet),
+                sessionId, currentTime);
+    }
+
+    public static AdminUserSession checkSessionDeadAndRemove(AdminUserServiceRepositorySet repositorySet,
+                                                             String sessionId, long currentTime, long sessionAliveTime) {
+        AdminUserSessionRepository<AdminUserSession> adminUserSessionRepository = repositorySet.getAdminUserSessionRepository();
+
+        boolean alive = KeepAliveService.isAlive(getAliveKeeperServiceRepositorySet(repositorySet),
+                sessionId, currentTime, sessionAliveTime);
+        if (!alive) {
+            AdminUserSession removedSession = adminUserSessionRepository.remove(sessionId);
+            KeepAliveService.removeAliveKeeper(getAliveKeeperServiceRepositorySet(repositorySet)
+                    , sessionId);
+            return removedSession;
+        }
+        return null;
+    }
+
+    public static AdminUserSession logout(AdminUserServiceRepositorySet repositorySet,
+                                          String sessionId) {
+        AdminUserCurrentSessionRepository<AdminUserCurrentSession> adminUserCurrentSessionRepository = repositorySet.getAdminUserCurrentSessionRepository();
+        AdminUserSessionRepository<AdminUserSession> adminUserSessionRepository = repositorySet.getAdminUserSessionRepository();
+
+        AdminUserSession removedSession = removeSessionAndAliveKeeper(repositorySet, sessionId);
+        if (removedSession == null) {
+            return null;
+        }
+        AdminUserCurrentSession adminUserCurrentSession = adminUserCurrentSessionRepository.take(removedSession.getAccount());
+        adminUserCurrentSession.setCurrentSessionId(null);
+        return removedSession;
+    }
 }

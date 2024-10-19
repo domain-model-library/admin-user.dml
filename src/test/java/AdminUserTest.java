@@ -1,3 +1,4 @@
+import dml.adminuser.entity.AdminUserSession;
 import dml.adminuser.entity.LoginResult;
 import dml.adminuser.repository.*;
 import dml.adminuser.service.AdminUserService;
@@ -84,18 +85,51 @@ public class AdminUserTest {
         String authedAccount2 = AdminUserService.auth(adminUserServiceRepositorySet,
                 loginResult7.getNewSession().getId());
         assertNull(authedAccount2);
+
+        long sessionAliveTime = 1000;
         //时间流逝
+        currentTime += 500;
         //在session过期之前保活一下
-        //检查并过期session，未过期
+        AdminUserService.keepSessionAlive(adminUserServiceRepositorySet,
+                loginResult8.getNewSession().getId(), currentTime);
         //时间流逝
+        currentTime += 600;
+        //检查并过期session，未过期
+        AdminUserSession removedSession1 = AdminUserService.checkSessionDeadAndRemove(adminUserServiceRepositorySet,
+                loginResult8.getNewSession().getId(), currentTime, sessionAliveTime);
+        assertNull(removedSession1);
+        //时间流逝
+        currentTime += 1500;
         //检查并过期session，已过期
+        AdminUserSession removedSession2 = AdminUserService.checkSessionDeadAndRemove(adminUserServiceRepositorySet,
+                loginResult8.getNewSession().getId(), currentTime, sessionAliveTime);
+        assertNotNull(removedSession2);
+        assertEquals(loginResult8.getNewSession().getId(), removedSession2.getId());
         //通过sessionId验证身份失败
+        String authedAccount3 = AdminUserService.auth(adminUserServiceRepositorySet,
+                loginResult8.getNewSession().getId());
+        assertNull(authedAccount3);
 
         //再次登录
+        LoginResult loginResult9 = AdminUserService.login(adminUserServiceRepositorySet,
+                account2, password3, new TestAdminUserSession(), currentTime);
+        assertTrue(loginResult9.isSuccess());
         //登出
+        AdminUserSession removedSession3 = AdminUserService.logout(adminUserServiceRepositorySet,
+                loginResult9.getNewSession().getId());
         //通过sessionId验证身份失败
+        String authedAccount4 = AdminUserService.auth(adminUserServiceRepositorySet,
+                loginResult9.getNewSession().getId());
+        assertNull(authedAccount4);
         //再次登录
+        LoginResult loginResult10 = AdminUserService.login(adminUserServiceRepositorySet,
+                account2, password3, new TestAdminUserSession(), currentTime);
+        assertTrue(loginResult10.isSuccess());
+        assertNull(loginResult10.getRemovedSession());
         //通过sessionId验证身份
+        String authedAccount5 = AdminUserService.auth(adminUserServiceRepositorySet,
+                loginResult10.getNewSession().getId());
+        assertEquals(account2, authedAccount5);
     }
 
     AdminUserServiceRepositorySet adminUserServiceRepositorySet = new AdminUserServiceRepositorySet() {
