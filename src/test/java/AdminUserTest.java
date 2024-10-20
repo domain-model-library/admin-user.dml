@@ -1,8 +1,8 @@
 import dml.adminuser.entity.AdminUserSession;
-import dml.adminuser.entity.LoginResult;
 import dml.adminuser.repository.*;
 import dml.adminuser.service.AdminUserService;
 import dml.adminuser.service.repositoryset.AdminUserServiceRepositorySet;
+import dml.adminuser.service.result.LoginResult;
 import dml.common.repository.TestCommonRepository;
 import dml.common.repository.TestCommonSingletonRepository;
 import dml.id.entity.UUIDStyleRandomStringIdGenerator;

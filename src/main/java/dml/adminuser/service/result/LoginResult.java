@@ -1,4 +1,6 @@
-package dml.adminuser.entity;
+package dml.adminuser.service.result;
+
+import dml.adminuser.entity.AdminUserSession;
 
 public class LoginResult {
     private boolean success;

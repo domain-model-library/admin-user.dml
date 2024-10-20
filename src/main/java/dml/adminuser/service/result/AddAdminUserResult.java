@@ -1,4 +1,6 @@
-package dml.adminuser.entity;
+package dml.adminuser.service.result;
+
+import dml.adminuser.entity.AdminUser;
 
 public class AddAdminUserResult {
     private boolean success;
