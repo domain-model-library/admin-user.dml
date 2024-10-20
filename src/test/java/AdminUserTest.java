@@ -6,6 +6,7 @@ import dml.adminuser.service.result.LoginResult;
 import dml.common.repository.TestCommonRepository;
 import dml.common.repository.TestCommonSingletonRepository;
 import dml.id.entity.UUIDStyleRandomStringIdGenerator;
+import dml.largescaletaskmanagement.repository.LargeScaleTaskSegmentIDGeneratorRepository;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -157,6 +158,21 @@ public class AdminUserTest {
         @Override
         public AdminUserSessionAliveKeeperRepository getAdminUserSessionAliveKeeperRepository() {
             return adminUserSessionAliveKeeperRepository;
+        }
+
+        @Override
+        public ClearSessionTaskRepository getClearSessionTaskRepository() {
+            return null;
+        }
+
+        @Override
+        public ClearSessionTaskSegmentRepository getClearSessionTaskSegmentRepository() {
+            return null;
+        }
+
+        @Override
+        public LargeScaleTaskSegmentIDGeneratorRepository getClearSessionTaskSegmentIDGeneratorRepository() {
+            return null;
         }
     };
 

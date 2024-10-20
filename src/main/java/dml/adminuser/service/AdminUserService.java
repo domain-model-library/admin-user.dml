@@ -1,19 +1,21 @@
 package dml.adminuser.service;
 
-import dml.adminuser.entity.AdminUser;
-import dml.adminuser.entity.AdminUserCurrentSession;
-import dml.adminuser.entity.AdminUserSession;
-import dml.adminuser.entity.AdminUserSessionAliveKeeper;
-import dml.adminuser.repository.AdminUserCurrentSessionRepository;
-import dml.adminuser.repository.AdminUserRepository;
-import dml.adminuser.repository.AdminUserSessionIDGeneratorRepository;
-import dml.adminuser.repository.AdminUserSessionRepository;
+import dml.adminuser.entity.*;
+import dml.adminuser.repository.*;
 import dml.adminuser.service.repositoryset.AdminUserServiceRepositorySet;
 import dml.adminuser.service.result.AddAdminUserResult;
 import dml.adminuser.service.result.LoginResult;
 import dml.keepalive.repository.AliveKeeperRepository;
 import dml.keepalive.service.KeepAliveService;
 import dml.keepalive.service.repositoryset.AliveKeeperServiceRepositorySet;
+import dml.largescaletaskmanagement.repository.LargeScaleTaskRepository;
+import dml.largescaletaskmanagement.repository.LargeScaleTaskSegmentIDGeneratorRepository;
+import dml.largescaletaskmanagement.repository.LargeScaleTaskSegmentRepository;
+import dml.largescaletaskmanagement.service.LargeScaleTaskService;
+import dml.largescaletaskmanagement.service.repositoryset.LargeScaleTaskServiceRepositorySet;
+import dml.largescaletaskmanagement.service.result.TakeTaskSegmentToExecuteResult;
+
+import java.util.List;
 
 public class AdminUserService {
 
@@ -164,6 +166,66 @@ public class AdminUserService {
         return null;
     }
 
+    /**
+     * 如果任务没有完成还需要继续执行，返回true
+     */
+    public static boolean executeUserSessionCleanupTask(AdminUserServiceRepositorySet repositorySet,
+                                                        String taskName, long currentTime, int sessionBatchSize,
+                                                        long maxSegmentExecutionTime, long maxTimeToTaskReady,
+                                                        long sessionKeepAliveInterval, List<String> sessionIdList) {
+        ClearSessionTaskRepository clearSessionTaskRepository = repositorySet.getClearSessionTaskRepository();
+
+        ClearSessionTask task = clearSessionTaskRepository.find(taskName);
+        if (task == null) {
+            task = (ClearSessionTask) LargeScaleTaskService.createTask(getLargeScaleTaskServiceRepositorySet(repositorySet),
+                    taskName, new ClearSessionTask(), currentTime);
+            if (task != null) {
+                if (sessionIdList.isEmpty()) {
+                    return false;
+                }
+                //分批次
+                int size = sessionIdList.size();
+                int batchCount = size / sessionBatchSize;
+                if (size % sessionBatchSize != 0) {
+                    batchCount++;
+                }
+                for (int i = 0; i < batchCount; i++) {
+                    int start = i * sessionBatchSize;
+                    int end = Math.min((i + 1) * sessionBatchSize, size);
+                    List<String> subList = sessionIdList.subList(start, end);
+                    ClearSessionTakeSegment segment = new ClearSessionTakeSegment();
+                    segment.setSessionIdList(subList);
+                    LargeScaleTaskService.addTaskSegment(getLargeScaleTaskServiceRepositorySet(repositorySet),
+                            taskName, segment);
+                }
+                LargeScaleTaskService.setTaskReadyToProcess(getLargeScaleTaskServiceRepositorySet(repositorySet),
+                        taskName);
+            }
+            return true;
+        }
+
+        TakeTaskSegmentToExecuteResult takeSegmentResult = LargeScaleTaskService.takeTaskSegmentToExecute(
+                getLargeScaleTaskServiceRepositorySet(repositorySet),
+                taskName, currentTime, maxSegmentExecutionTime, maxTimeToTaskReady);
+        if (takeSegmentResult.isTaskCompleted()) {
+            LargeScaleTaskService.removeTask(getLargeScaleTaskServiceRepositorySet(repositorySet),
+                    taskName);
+            return false;
+        }
+        ClearSessionTakeSegment segment = (ClearSessionTakeSegment) takeSegmentResult.getTaskSegment();
+        if (segment == null) {
+            return false;
+        }
+        List<String> segmentSessionIdList = segment.getSessionIdList();
+        for (String sessionId : segmentSessionIdList) {
+            checkSessionDeadAndRemove(repositorySet,
+                    sessionId, currentTime, sessionKeepAliveInterval);
+        }
+        LargeScaleTaskService.completeTaskSegment(getLargeScaleTaskServiceRepositorySet(repositorySet),
+                segment.getId());
+        return true;
+    }
+
     public static AdminUserSession logout(AdminUserServiceRepositorySet repositorySet,
                                           String sessionId) {
         AdminUserCurrentSessionRepository adminUserCurrentSessionRepository = repositorySet.getAdminUserCurrentSessionRepository();
@@ -176,5 +238,25 @@ public class AdminUserService {
         AdminUserCurrentSession adminUserCurrentSession = adminUserCurrentSessionRepository.take(removedSession.getAccount());
         adminUserCurrentSession.setCurrentSessionId(null);
         return removedSession;
+    }
+
+    private static LargeScaleTaskServiceRepositorySet getLargeScaleTaskServiceRepositorySet(
+            AdminUserServiceRepositorySet adminUserServiceRepositorySet) {
+        return new LargeScaleTaskServiceRepositorySet() {
+            @Override
+            public LargeScaleTaskRepository getLargeScaleTaskRepository() {
+                return adminUserServiceRepositorySet.getClearSessionTaskRepository();
+            }
+
+            @Override
+            public LargeScaleTaskSegmentRepository getLargeScaleTaskSegmentRepository() {
+                return adminUserServiceRepositorySet.getClearSessionTaskSegmentRepository();
+            }
+
+            @Override
+            public LargeScaleTaskSegmentIDGeneratorRepository getLargeScaleTaskSegmentIDGeneratorRepository() {
+                return adminUserServiceRepositorySet.getClearSessionTaskSegmentIDGeneratorRepository();
+            }
+        };
     }
 }
