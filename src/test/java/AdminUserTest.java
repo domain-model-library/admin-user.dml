@@ -179,8 +179,7 @@ public class AdminUserTest {
     AdminUserRepository adminUserRepository = TestCommonRepository.instance(AdminUserRepository.class);
     AdminUserSessionRepository adminUserSessionRepository = TestCommonRepository.instance(AdminUserSessionRepository.class);
     AdminUserSessionIDGeneratorRepository adminUserSessionIDGeneratorRepository = TestCommonSingletonRepository.instance(AdminUserSessionIDGeneratorRepository.class,
-            new UUIDStyleRandomStringIdGenerator() {
-            });
+            new UUIDStyleRandomStringIdGenerator());
     AdminUserCurrentSessionRepository adminUserCurrentSessionRepository = TestCommonRepository.instance(AdminUserCurrentSessionRepository.class);
     AdminUserSessionAliveKeeperRepository adminUserSessionAliveKeeperRepository = TestCommonRepository.instance(AdminUserSessionAliveKeeperRepository.class);
 
