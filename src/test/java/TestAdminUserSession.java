@@ -4,6 +4,10 @@ public class TestAdminUserSession implements AdminUserSession {
     private String id;
     private String account;
 
+    public TestAdminUserSession(String id) {
+        this.id = id;
+    }
+
     @Override
     public void setId(String id) {
         this.id = id;

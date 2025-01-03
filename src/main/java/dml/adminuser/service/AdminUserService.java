@@ -1,7 +1,10 @@
 package dml.adminuser.service;
 
 import dml.adminuser.entity.*;
-import dml.adminuser.repository.*;
+import dml.adminuser.repository.AdminUserCurrentSessionRepository;
+import dml.adminuser.repository.AdminUserRepository;
+import dml.adminuser.repository.AdminUserSessionRepository;
+import dml.adminuser.repository.ClearSessionTaskRepository;
 import dml.adminuser.service.repositoryset.AdminUserServiceRepositorySet;
 import dml.adminuser.service.result.AddAdminUserResult;
 import dml.adminuser.service.result.LoginResult;
@@ -75,9 +78,7 @@ public class AdminUserService {
                                                                 String account, AdminUserSession newAdminUserSession,
                                                                 long currentTime) {
         AdminUserSessionRepository<AdminUserSession> adminUserSessionRepository = repositorySet.getAdminUserSessionRepository();
-        AdminUserSessionIDGeneratorRepository adminUserSessionIDGeneratorRepository = repositorySet.getAdminUserSessionIDGeneratorRepository();
 
-        newAdminUserSession.setId(adminUserSessionIDGeneratorRepository.take().generateId());
         newAdminUserSession.setAccount(account);
         adminUserSessionRepository.put(newAdminUserSession);
 

@@ -4,10 +4,10 @@ import dml.adminuser.service.AdminUserService;
 import dml.adminuser.service.repositoryset.AdminUserServiceRepositorySet;
 import dml.adminuser.service.result.LoginResult;
 import dml.common.repository.TestCommonRepository;
-import dml.common.repository.TestCommonSingletonRepository;
-import dml.id.entity.UUIDStyleRandomStringIdGenerator;
 import dml.largescaletaskmanagement.repository.LargeScaleTaskSegmentIDGeneratorRepository;
 import org.junit.Test;
+
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -24,7 +24,7 @@ public class AdminUserTest {
         //管理员登录
         long currentTime = System.currentTimeMillis();
         LoginResult loginResult1 = AdminUserService.login(adminUserServiceRepositorySet,
-                account1, password1, new TestAdminUserSession(), currentTime);
+                account1, password1, new TestAdminUserSession(UUID.randomUUID().toString()), currentTime);
         assertTrue(loginResult1.isSuccess());
 
         //修改管理员密码
@@ -33,19 +33,19 @@ public class AdminUserTest {
                 account1, password2);
         //原密码登录失败
         LoginResult loginResult2 = AdminUserService.login(adminUserServiceRepositorySet,
-                account1, password1, new TestAdminUserSession(), currentTime);
+                account1, password1, new TestAdminUserSession(UUID.randomUUID().toString()), currentTime);
         assertFalse(loginResult2.isSuccess());
         assertTrue(loginResult2.isWrongPassword());
         //新密码登录成功
         LoginResult loginResult3 = AdminUserService.login(adminUserServiceRepositorySet,
-                account1, password2, new TestAdminUserSession(), currentTime);
+                account1, password2, new TestAdminUserSession(UUID.randomUUID().toString()), currentTime);
         assertTrue(loginResult3.isSuccess());
         //封禁管理员
         AdminUserService.banAdminUser(adminUserServiceRepositorySet,
                 account1);
         //登录失败
         LoginResult loginResult4 = AdminUserService.login(adminUserServiceRepositorySet,
-                account1, password2, new TestAdminUserSession(), currentTime);
+                account1, password2, new TestAdminUserSession(UUID.randomUUID().toString()), currentTime);
         assertFalse(loginResult4.isSuccess());
         assertTrue(loginResult4.isBanned());
         //解封管理员
@@ -53,14 +53,14 @@ public class AdminUserTest {
                 account1);
         //登录成功
         LoginResult loginResult5 = AdminUserService.login(adminUserServiceRepositorySet,
-                account1, password2, new TestAdminUserSession(), currentTime);
+                account1, password2, new TestAdminUserSession(UUID.randomUUID().toString()), currentTime);
         assertTrue(loginResult5.isSuccess());
         //删除管理员
         AdminUserService.removeAdminUser(adminUserServiceRepositorySet,
                 account1);
         //登录失败
         LoginResult loginResult6 = AdminUserService.login(adminUserServiceRepositorySet,
-                account1, password2, new TestAdminUserSession(), currentTime);
+                account1, password2, new TestAdminUserSession(UUID.randomUUID().toString()), currentTime);
         assertFalse(loginResult6.isSuccess());
         assertTrue(loginResult6.isNoAccount());
 
@@ -71,7 +71,7 @@ public class AdminUserTest {
                 account2, password3, new TestAdminUser());
         //管理员登录
         LoginResult loginResult7 = AdminUserService.login(adminUserServiceRepositorySet,
-                account2, password3, new TestAdminUserSession(), currentTime);
+                account2, password3, new TestAdminUserSession(UUID.randomUUID().toString()), currentTime);
         assertTrue(loginResult7.isSuccess());
         //通过sessionId验证身份
         String authedAccount1 = AdminUserService.auth(adminUserServiceRepositorySet,
@@ -79,7 +79,7 @@ public class AdminUserTest {
         assertEquals(account2, authedAccount1);
         //同个管理员再次登录
         LoginResult loginResult8 = AdminUserService.login(adminUserServiceRepositorySet,
-                account2, password3, new TestAdminUserSession(), currentTime);
+                account2, password3, new TestAdminUserSession(UUID.randomUUID().toString()), currentTime);
         assertTrue(loginResult8.isSuccess());
         assertEquals(loginResult7.getNewSession().getId(), loginResult8.getRemovedSession().getId());
         //通过之前的sessionId验证身份失败（被踢）
@@ -113,7 +113,7 @@ public class AdminUserTest {
 
         //再次登录
         LoginResult loginResult9 = AdminUserService.login(adminUserServiceRepositorySet,
-                account2, password3, new TestAdminUserSession(), currentTime);
+                account2, password3, new TestAdminUserSession(UUID.randomUUID().toString()), currentTime);
         assertTrue(loginResult9.isSuccess());
         //登出
         AdminUserSession removedSession3 = AdminUserService.logout(adminUserServiceRepositorySet,
@@ -124,7 +124,7 @@ public class AdminUserTest {
         assertNull(authedAccount4);
         //再次登录
         LoginResult loginResult10 = AdminUserService.login(adminUserServiceRepositorySet,
-                account2, password3, new TestAdminUserSession(), currentTime);
+                account2, password3, new TestAdminUserSession(UUID.randomUUID().toString()), currentTime);
         assertTrue(loginResult10.isSuccess());
         assertNull(loginResult10.getRemovedSession());
         //通过sessionId验证身份
@@ -143,11 +143,6 @@ public class AdminUserTest {
         @Override
         public AdminUserSessionRepository getAdminUserSessionRepository() {
             return adminUserSessionRepository;
-        }
-
-        @Override
-        public AdminUserSessionIDGeneratorRepository getAdminUserSessionIDGeneratorRepository() {
-            return adminUserSessionIDGeneratorRepository;
         }
 
         @Override
@@ -178,8 +173,6 @@ public class AdminUserTest {
 
     AdminUserRepository adminUserRepository = TestCommonRepository.instance(AdminUserRepository.class);
     AdminUserSessionRepository adminUserSessionRepository = TestCommonRepository.instance(AdminUserSessionRepository.class);
-    AdminUserSessionIDGeneratorRepository adminUserSessionIDGeneratorRepository = TestCommonSingletonRepository.instance(AdminUserSessionIDGeneratorRepository.class,
-            new UUIDStyleRandomStringIdGenerator());
     AdminUserCurrentSessionRepository adminUserCurrentSessionRepository = TestCommonRepository.instance(AdminUserCurrentSessionRepository.class);
     AdminUserSessionAliveKeeperRepository adminUserSessionAliveKeeperRepository = TestCommonRepository.instance(AdminUserSessionAliveKeeperRepository.class);
 

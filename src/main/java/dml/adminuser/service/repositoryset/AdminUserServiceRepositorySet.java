@@ -8,8 +8,6 @@ public interface AdminUserServiceRepositorySet {
 
     AdminUserSessionRepository getAdminUserSessionRepository();
 
-    AdminUserSessionIDGeneratorRepository getAdminUserSessionIDGeneratorRepository();
-
     AdminUserCurrentSessionRepository getAdminUserCurrentSessionRepository();
 
     AdminUserSessionAliveKeeperRepository getAdminUserSessionAliveKeeperRepository();
