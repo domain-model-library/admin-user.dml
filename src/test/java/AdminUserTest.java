@@ -4,7 +4,6 @@ import dml.adminuser.service.AdminUserService;
 import dml.adminuser.service.repositoryset.AdminUserServiceRepositorySet;
 import dml.adminuser.service.result.LoginResult;
 import dml.common.repository.TestCommonRepository;
-import dml.largescaletaskmanagement.repository.LargeScaleTaskSegmentIDGeneratorRepository;
 import org.junit.Test;
 
 import java.util.UUID;
@@ -166,7 +165,7 @@ public class AdminUserTest {
         }
 
         @Override
-        public LargeScaleTaskSegmentIDGeneratorRepository getClearSessionTaskSegmentIDGeneratorRepository() {
+        public ClearSessionTaskSegmentIDGeneratorRepository getClearSessionTaskSegmentIDGeneratorRepository() {
             return null;
         }
     };

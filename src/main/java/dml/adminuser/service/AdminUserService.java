@@ -1,10 +1,7 @@
 package dml.adminuser.service;
 
 import dml.adminuser.entity.*;
-import dml.adminuser.repository.AdminUserCurrentSessionRepository;
-import dml.adminuser.repository.AdminUserRepository;
-import dml.adminuser.repository.AdminUserSessionRepository;
-import dml.adminuser.repository.ClearSessionTaskRepository;
+import dml.adminuser.repository.*;
 import dml.adminuser.service.repositoryset.AdminUserServiceRepositorySet;
 import dml.adminuser.service.result.AddAdminUserResult;
 import dml.adminuser.service.result.LoginResult;
@@ -12,7 +9,6 @@ import dml.keepalive.repository.AliveKeeperRepository;
 import dml.keepalive.service.KeepAliveService;
 import dml.keepalive.service.repositoryset.AliveKeeperServiceRepositorySet;
 import dml.largescaletaskmanagement.repository.LargeScaleTaskRepository;
-import dml.largescaletaskmanagement.repository.LargeScaleTaskSegmentIDGeneratorRepository;
 import dml.largescaletaskmanagement.repository.LargeScaleTaskSegmentRepository;
 import dml.largescaletaskmanagement.service.LargeScaleTaskService;
 import dml.largescaletaskmanagement.service.repositoryset.LargeScaleTaskServiceRepositorySet;
@@ -175,6 +171,7 @@ public class AdminUserService {
                                                         long maxSegmentExecutionTime, long maxTimeToTaskReady,
                                                         long sessionKeepAliveInterval, List<String> sessionIdList) {
         ClearSessionTaskRepository clearSessionTaskRepository = repositorySet.getClearSessionTaskRepository();
+        ClearSessionTaskSegmentIDGeneratorRepository clearSessionTaskSegmentIDGeneratorRepository = repositorySet.getClearSessionTaskSegmentIDGeneratorRepository();
 
         ClearSessionTask task = clearSessionTaskRepository.find(taskName);
         if (task == null) {
@@ -195,6 +192,7 @@ public class AdminUserService {
                     int end = Math.min((i + 1) * sessionBatchSize, size);
                     List<String> subList = sessionIdList.subList(start, end);
                     ClearSessionTakeSegment segment = new ClearSessionTakeSegment();
+                    segment.setId(clearSessionTaskSegmentIDGeneratorRepository.take().generateId());
                     segment.setSessionIdList(subList);
                     LargeScaleTaskService.addTaskSegment(getLargeScaleTaskServiceRepositorySet(repositorySet),
                             taskName, segment);
@@ -254,10 +252,6 @@ public class AdminUserService {
                 return adminUserServiceRepositorySet.getClearSessionTaskSegmentRepository();
             }
 
-            @Override
-            public LargeScaleTaskSegmentIDGeneratorRepository getLargeScaleTaskSegmentIDGeneratorRepository() {
-                return adminUserServiceRepositorySet.getClearSessionTaskSegmentIDGeneratorRepository();
-            }
         };
     }
 }

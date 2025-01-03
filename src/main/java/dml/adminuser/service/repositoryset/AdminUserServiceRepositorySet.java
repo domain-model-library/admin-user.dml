@@ -1,7 +1,6 @@
 package dml.adminuser.service.repositoryset;
 
 import dml.adminuser.repository.*;
-import dml.largescaletaskmanagement.repository.LargeScaleTaskSegmentIDGeneratorRepository;
 
 public interface AdminUserServiceRepositorySet {
     AdminUserRepository getAdminUserRepository();
@@ -16,6 +15,6 @@ public interface AdminUserServiceRepositorySet {
 
     ClearSessionTaskSegmentRepository getClearSessionTaskSegmentRepository();
 
-    LargeScaleTaskSegmentIDGeneratorRepository getClearSessionTaskSegmentIDGeneratorRepository();
+    ClearSessionTaskSegmentIDGeneratorRepository getClearSessionTaskSegmentIDGeneratorRepository();
 
 }
