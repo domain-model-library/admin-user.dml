@@ -14,6 +14,7 @@ import dml.largescaletaskmanagement.service.LargeScaleTaskService;
 import dml.largescaletaskmanagement.service.repositoryset.LargeScaleTaskServiceRepositorySet;
 import dml.largescaletaskmanagement.service.result.TakeTaskSegmentToExecuteResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdminUserService {
@@ -190,7 +191,7 @@ public class AdminUserService {
                 for (int i = 0; i < batchCount; i++) {
                     int start = i * sessionBatchSize;
                     int end = Math.min((i + 1) * sessionBatchSize, size);
-                    List<String> subList = sessionIdList.subList(start, end);
+                    List<String> subList = new ArrayList<>(sessionIdList.subList(start, end));
                     ClearSessionTakeSegment segment = new ClearSessionTakeSegment();
                     segment.setId(clearSessionTaskSegmentIDGeneratorRepository.take().generateId());
                     segment.setSessionIdList(subList);
