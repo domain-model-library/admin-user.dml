@@ -2,28 +2,21 @@ package dml.adminuser.entity;
 
 import dml.largescaletaskmanagement.entity.LargeScaleTaskSegmentBase;
 
-import java.util.List;
-
 public class ClearSessionTakeSegment extends LargeScaleTaskSegmentBase {
 
-    private String id;
-    private List<String> sessionIdList;
+    private String sessionId;
 
     @Override
     public void setId(Object id) {
-        this.id = (String) id;
+        this.sessionId = (String) id;
     }
 
     @Override
     public Object getId() {
-        return id;
+        return sessionId;
     }
 
-    public List<String> getSessionIdList() {
-        return sessionIdList;
-    }
-
-    public void setSessionIdList(List<String> sessionIdList) {
-        this.sessionIdList = sessionIdList;
+    public String getSessionId() {
+        return sessionId;
     }
 }

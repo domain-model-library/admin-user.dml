@@ -164,10 +164,6 @@ public class AdminUserTest {
             return null;
         }
 
-        @Override
-        public ClearSessionTaskSegmentIDGeneratorRepository getClearSessionTaskSegmentIDGeneratorRepository() {
-            return null;
-        }
     };
 
     AdminUserRepository adminUserRepository = TestCommonRepository.instance(AdminUserRepository.class);
