@@ -6,7 +6,6 @@ public class ClearSessionTakeSegment extends LargeScaleTaskSegmentBase {
 
     private String sessionId;
 
-    @Override
     public void setId(Object id) {
         this.sessionId = (String) id;
     }

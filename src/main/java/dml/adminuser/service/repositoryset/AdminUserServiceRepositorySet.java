@@ -14,4 +14,6 @@ public interface AdminUserServiceRepositorySet {
     ClearSessionTaskRepository getClearSessionTaskRepository();
 
     ClearSessionTaskSegmentRepository getClearSessionTaskSegmentRepository();
+
+    ClearSessionTaskSegmentTimeoutStrategyRepository getClearSessionTaskSegmentTimeoutStrategyRepository();
 }

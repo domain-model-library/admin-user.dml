@@ -164,6 +164,11 @@ public class AdminUserTest {
             return null;
         }
 
+        @Override
+        public ClearSessionTaskSegmentTimeoutStrategyRepository getClearSessionTaskSegmentTimeoutStrategyRepository() {
+            return null;
+        }
+
     };
 
     AdminUserRepository adminUserRepository = TestCommonRepository.instance(AdminUserRepository.class);

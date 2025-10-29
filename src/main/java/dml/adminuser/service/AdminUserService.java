@@ -13,6 +13,7 @@ import dml.keepalive.service.KeepAliveService;
 import dml.keepalive.service.repositoryset.AliveKeeperServiceRepositorySet;
 import dml.largescaletaskmanagement.repository.LargeScaleTaskRepository;
 import dml.largescaletaskmanagement.repository.LargeScaleTaskSegmentRepository;
+import dml.largescaletaskmanagement.repository.SegmentProcessingTimeoutHandlingStrategyRepository;
 import dml.largescaletaskmanagement.service.LargeScaleTaskService;
 import dml.largescaletaskmanagement.service.repositoryset.LargeScaleTaskServiceRepositorySet;
 import dml.largescaletaskmanagement.service.result.TakeTaskSegmentToExecuteResult;
@@ -240,6 +241,11 @@ public class AdminUserService {
             @Override
             public LargeScaleTaskSegmentRepository getLargeScaleTaskSegmentRepository() {
                 return adminUserServiceRepositorySet.getClearSessionTaskSegmentRepository();
+            }
+
+            @Override
+            public SegmentProcessingTimeoutHandlingStrategyRepository getSegmentProcessingTimeoutHandlingStrategyRepository() {
+                return adminUserServiceRepositorySet.getClearSessionTaskSegmentTimeoutStrategyRepository();
             }
 
         };

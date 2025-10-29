@@ -1,0 +1,7 @@
+package dml.adminuser.repository;
+
+import dml.largescaletaskmanagement.entity.CompleteSegmentIfTimeout;
+import dml.largescaletaskmanagement.repository.SegmentProcessingTimeoutHandlingStrategyRepository;
+
+public interface ClearSessionTaskSegmentTimeoutStrategyRepository extends SegmentProcessingTimeoutHandlingStrategyRepository<CompleteSegmentIfTimeout> {
+}
